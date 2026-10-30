@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi & KPI Perusahaan</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        h2 { text-align: center; color: var(--primary); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background: var(--primary-hover); }
+        .hidden { display: none !important; }
+        .alert {
+            padding: 10px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .success {
+            padding: 10px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .user-info {
+            background: #e0e7ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logout-btn {
+            background: #ef4444;
+            width: auto;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0;
+        }
+        .card-box {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        hr { border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <div style="font-size: 24px; font-weight: bold; color: var(--primary);">🏢 PT MAJU JAYA</div>
+        <small style="color: #64748b;">Sistem Absensi & Penilaian Kinerja</small>
+    </div>
+
+    <!-- HALAMAN LOGIN -->
+    <div id="loginPage">
+        <h2>Login Karyawan</h2>
+        <div id="loginAlert" class="alert hidden"></div>
+        <div class="form-group">
+            <label>ID Pengguna</label>
+            <input type="text" id="loginId" placeholder="Masukkan ID (cth: fendi005)">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPass" placeholder="Masukkan Password">
+        </div>
+        <button onclick="handleLogin()">Masuk</button>
+        
+        <div style="margin-top: 20px; font-size: 12px; color: #64748b;">
+            <b>Petunjuk Coba Akun:</b><br>
+            • Karyawan: <code>fendi005</code> / <code>fendi567</code><br>
+            • Spv: <code>nandaspv45</code> / <code>nanda@23</code><br>
+            • Manager: <code>irfan357</code> / <code>irfan_4</code><br>
+            • Pusat: <code>center1</code> / <code>@@234pusat</code>
+        </div>
+    </div>
+
+    <!-- HALAMAN DASHBOARD KARYAWAN -->
+    <div id="employeeDashboard" class="hidden">
+        <div class="user-info">
+            <span id="empWelcome">Halo, Karyawan</span>
+            <button class="logout-btn" onclick="handleLogout()">Keluar</button>
+        </div>
+
+        <div id="empAlert"></div>
+
+        <div class="card-box">
+            <h3>Menu Absensi Harian</h3>
+            <p style="font-size: 13px; color: #64748b;">Jam Masuk: 07:00 - 07:20 | Jam Pulang: min 17:10</p>
+            <button onclick="doCheckIn()">Check-In Masuk</button>
+            <button onclick="doCheckOut()" style="background: #0ea5e9;">Check-Out Pulang</button>
+        </div>
+
+        <div class="card-box">
+            <h3>Ajukan Cuti</h3>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <label style="font-size: 12px;">Tanggal Cuti</label>
+                <input type="date" id="cutiDate">
+            </div>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <label style="font-size: 12px;">Alasan Cuti</label>
+                <textarea id="cutiReason" rows="2" placeholder="Alasan cuti..."></textarea>
+            </div>
+            <button onclick="submitCuti()" style="background: #10b981;">Kirim Pengajuan Cuti</button>
+        </div>
+    </div>
+
+    <!-- HALAMAN DASHBOARD SUPERVISOR -->
+    <div id="spvDashboard" class="hidden">
+        <div class="user-info">
+            <span id="spvWelcome">Halo, Supervisor</span>
+            <button class="logout-btn" onclick="handleLogout()">Keluar</button>
+        </div>
+        <div id="spvAlert"></div>
+
+        <div class="card-box">
+            <h3>Absensi Saya (Spv)</h3>
+            <button onclick="doCheckIn()">Check-In Masuk</button>
+            <button onclick="doCheckOut()" style="background: #0ea5e9;">Check-Out Pulang</button>
+        </div>
+
+        <div class="card-box" style="background: #e0f2fe;">
+            <h3 style="color: #0369a1;">Akses Khusus Supervisor</h3>
+            
+            <div class="form-group">
+                <label style="font-size: 13px;">Buka Absen Karyawan Telat</label>
+                <select id="targetKaryawanTelat">
+                    <option value="fendi005">Fendi (fendi005)</option>
+                    <option value="bagusadi456">Bagus (bagusadi456)</option>
+                </select>
+                <button onclick="bukaAbsenTelat()" style="background: #0284c7; margin-top: 8px;">Buka Akses (Tercatat di Pusat)</button>
+            </div>
+
+            <hr>
+
+            <div class="form-group">
+                <label style="font-size: 13px;">Beri Penilaian / Rating Karyawan</label>
+                <select id="rateKaryawan">
+                    <option value="fendi005">Fendi (fendi005)</option>
+                    <option value="bagusadi456">Bagus (bagusadi456)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label style="font-size: 13px;">Rating Bintang (1 - 5)</label>
+                <select id="rateBintang">
+                    <option value="5">⭐⭐⭐⭐⭐ (5 - Sangat Baik)</option>
+                    <option value="4">⭐⭐⭐⭐ (4 - Baik)</option>
+                    <option value="3">⭐⭐⭐ (3 - Cukup)</option>
+                    <option value="⭐⭐">⭐⭐ (2 - Kurang)</option>
+                    <option value="⭐">⭐ (1 - Buruk)</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <label style="font-size: 13px;">Alasan / Kritik</label>
+                <textarea id="rateAlasan" rows="2" placeholder="Tulis ulasan/kritik kinerja..."></textarea>
+            </div>
+            <button onclick="submitRating()" style="background: #0284c7;">Kirim Penilaian ke Pusat</button>
+        </div>
+    </div>
+
+    <!-- HALAMAN DASHBOARD MANAGER -->
+    <div id="managerDashboard" class="hidden">
+        <div class="user-info">
+            <span id="mgrWelcome">Halo, Manager</span>
+            <button class="logout-btn" onclick="handleLogout()">Keluar</button>
+        </div>
+        <div class="card-box">
+            <h3>Monitoring Kinerja Tim</h3>
+            <p style="font-size: 13px; color: #64748b;">Manager dapat memantau ringkasan laporan operasional dan performa tim dari supervisor.</p>
+            <div id="managerLogBox" style="background: white; padding: 10px; border-radius: 6px; font-size: 13px; max-height: 200px; overflow-y: auto;">
+                <em>Memuat data laporan...</em>
+            </div>
+        </div>
+    </div>
+
+    <!-- HALAMAN DASHBOARD PUSAT -->
+    <div id="centerDashboard" class="hidden">
+        <div class="user-info">
+            <span id="centerWelcome">Halo, Admin Pusat</span>
+            <button class="logout-btn" onclick="handleLogout()">Keluar</button>
+        </div>
+        <div class="card-box" style="background: #fef3c7;">
+            <h3 style="color: #b45309;">Pusat Log & Data Aktivitas</h3>
+            <p style="font-size: 12px; color: #78350f;">Memantau override spv, telat karyawan, dan rating kinerja:</p>
+            <div id="centerLogBox" style="background: white; padding: 10px; border-radius: 6px; font-size: 12px; max-height: 250px; overflow-y: auto; border: 1px solid #fde68a;">
+                <em>Belum ada aktivitas tercatat.</em>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const users = {
+        "fendi005": { name: "Fendi", role: "karyawan", pass: "fendi567" },
+        "bagusadi456": { name: "Bagus Adi", role: "karyawan", pass: "bagusbagus23" },
+        "nandaspv45": { name: "Nanda (Supervisor)", role: "supervisor", pass: "nanda@23" },
+        "irfan357": { name: "Irfan (Manager)", role: "manager", pass: "irfan_4" },
+        "center1": { name: "Admin Pusat", role: "pusat", pass: "@@234pusat" }
+    };
+
+    let currentUser = null;
+    let globalLogs = [];
+
+    function handleLogin() {
+        const id = document.getElementById("loginId").value.trim();
+        const pass = document.getElementById("loginPass").value.trim();
+        const alertBox = document.getElementById("loginAlert");
+
+        if (!users[id] || users[id].pass !== pass) {
+            alertBox.innerText = "ID atau Password salah!";
+            alertBox.classList.remove("hidden");
+            return;
+        }
+
+        alertBox.classList.add("hidden");
+        currentUser = { id, ...users[id] };
+        
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("employeeDashboard").classList.add("hidden");
+        document.getElementById("spvDashboard").classList.add("hidden");
+        document.getElementById("managerDashboard").classList.add("hidden");
+        document.getElementById("centerDashboard").classList.add("hidden");
+
+        if (currentUser.role === "karyawan") {
+            document.getElementById("empWelcome").innerText = `Halo, ${currentUser.name}`;
+            document.getElementById("employeeDashboard").classList.remove("hidden");
+        } else if (currentUser.role === "supervisor") {
+            document.getElementById("spvWelcome").innerText = `Halo, ${currentUser.name}`;
+            document.getElementById("spvDashboard").classList.remove("hidden");
+        } else if (currentUser.role === "manager") {
+            document.getElementById("mgrWelcome").innerText = `Halo, ${currentUser.name}`;
+            updateLogsView();
+            document.getElementById("managerDashboard").classList.remove("hidden");
+        } else if (currentUser.role === "pusat") {
+            document.getElementById("centerWelcome").innerText = `Halo, ${currentUser.name}`;
+            updateLogsView();
+            document.getElementById("centerDashboard").classList.remove("hidden");
+        }
+    }
+
+    function handleLogout() {
+        currentUser = null;
+        document.getElementById("loginId").value = "";
+        document.getElementById("loginPass").value = "";
+        document.getElementById("loginPage").classList.remove("hidden");
+        document.getElementById("employeeDashboard").classList.add("hidden");
+        document.getElementById("spvDashboard").classList.add("hidden");
+        document.getElementById("managerDashboard").classList.add("hidden");
+        document.getElementById("centerDashboard").classList.add("hidden");
+    }
+
+    function showEmpAlert(msg, type = "success") {
+        const el = document.getElementById("empAlert");
+        el.className = type === "success" ? "success" : "alert";
+        el.innerText = msg;
+        setTimeout(() => { el.innerText = ""; el.className = ""; }, 4000);
+    }
+
+    function doCheckIn() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const totalMinutes = hours * 60 + minutes;
+
+        const minTime = 7 * 60; 
+        const maxTime = 7 * 60 + 20;
+
+        if (totalMinutes < minTime) {
+            showEmpAlert("Belum waktunya check-in! Mulai pukul 07:00.", "alert");
+        } else if (totalMinutes > maxTime) {
+            showEmpAlert("Anda TERLAMBAT (> 07:20)! Hubungi Supervisor untuk membuka absen.", "alert");
+            addLog(`⚠️ [TELAT] Karyawan ${currentUser.name} (${currentUser.id}) mencoba check-in terlambat.`);
+        } else {
+            showEmpAlert(`Berhasil Check-In pada pukul ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')} (Lokasi Valid).`);
+            addLog(`✅ [ABSEN] ${currentUser.name} berhasil Check-In tepat waktu.`);
+        }
+    }
+
+    function doCheckOut() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const totalMinutes = hours * 60 + minutes;
+        const minCheckout = 17 * 60 + 10;
+
+        if (totalMinutes < minCheckout) {
+            showEmpAlert("Belum waktunya check-out! Minimal pukul 17:10.", "alert");
+        } else {
+            showEmpAlert(`Berhasil Check-Out pada pukul ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}. Hati-hati di jalan!`);
+            addLog(`✅ [ABSEN] ${currentUser.name} melakukan Check-Out.`);
+        }
+    }
+
+    function submitCuti() {
+        const date = document.getElementById("cutiDate").value;
+        const reason = document.getElementById("cutiReason").value;
+        if (!date || !reason) {
+            alert("Harap isi tanggal dan alasan cuti!");
+            return;
+        }
+        showEmpAlert("Pengajuan cuti berhasil dikirim ke Supervisor & Pusat.");
+        addLog(`📅 [CUTI] ${currentUser.name} mengajukan cuti pada tanggal ${date}. Alasan: "${reason}"`);
+        document.getElementById("cutiReason").value = "";
+    }
+
+    function bukaAbsenTelat() {
+        const targetId = document.getElementById("targetKaryawanTelat").value;
+        alert(`Akses absen untuk ID (${targetId}) telah dibuka oleh Supervisor.`);
+        addLog(`🔓 [OVERRIDE SPV] Supervisor ${currentUser.name} membukakan absen telat untuk Karyawan ID: ${targetId}`);
+        updateLogsView();
+    }
+
+    function submitRating() {
+        const targetId = document.getElementById("rateKaryawan").value;
+        const bintang = document.getElementById("rateBintang").value;
+        const alasan = document.getElementById("rateAlasan").value;
+
+        if (!alasan) {
+            alert("Harap isi alasan/kritik penilaian!");
+            return;
+        }
+
+        alert("Penilaian berhasil dikirim ke Pusat!");
+        addLog(`⭐ [KPI RATING] Spv ${currentUser.name} menilai ${targetId} dengan rating ${bintang}. Catatan: "${alasan}"`);
+        document.getElementById("rateAlasan").value = "";
+        updateLogsView();
+    }
+
+    function addLog(text) {
+        const timestamp = new Date().toLocaleTimeString();
+        globalLogs.unshift(`[${timestamp}] ${text}`);
+    }
+
+    function updateLogsView() {
+        const logHtml = globalLogs.length === 0 ? "<em>Belum ada aktivitas tercatat.</em>" : globalLogs.join("<br><br>");
+        if(document.getElementById("centerLogBox")) document.getElementById("centerLogBox").innerHTML = logHtml;
+        if(document.getElementById("managerLogBox")) document.getElementById("managerLogBox").innerHTML = logHtml;
+    }
+</script>
+
+</body>
+              </html>
+  
